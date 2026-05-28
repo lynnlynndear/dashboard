@@ -1,0 +1,9 @@
+# Reference materials (large video files)
+ref/
+
+# Claude Code local configuration
+.claude/
+
+# macOS
+.DS_Store
+**/.DS_Store
