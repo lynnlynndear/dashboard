@@ -1,4 +1,4 @@
-import type { OrderRecord, FixedCostItem, PeriodData } from '../types';
+import type { OrderRecord, FixedCostItem, PeriodData, QualityCheck } from '../types';
 
 const channels = ['天猫', '抖音', '线下门店', '京东'];
 const categories = ['主力款', '引流款', '利润款', '清仓款'];
@@ -406,7 +406,7 @@ export const ANALYSIS_MOCK = {
       { level: '警告', text: '行业大盘缺少 PDD 价格带数据，降级为内部参照' },
       { level: '提示', text: 'LF Mini Air Roadmap 实际到货时间由经营分析岗手工修正' },
     ],
-  },
+  } as QualityCheck,
   moduleFrames: {
     dashboard: {
       title: '经营驾驶舱',

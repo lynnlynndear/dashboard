@@ -149,3 +149,45 @@ export interface ScenarioParams {
   variableCostChange: number;
   fixedCostChange: number;
 }
+
+export interface FinancialMetrics {
+  revenue: number;
+  variableCosts: number;
+  contributionMargin: number;
+  contributionMarginRate: number;
+  fixedCosts: number;
+  operatingProfit: number;
+  profitRate: number;
+  breakEvenRevenue: number;
+  safetyMargin: number;
+  safetyMarginRate: number;
+}
+
+export interface ChannelScore {
+  profitStatus: 'profit' | 'breakeven' | 'loss';
+  marginRate: 'high' | 'medium' | 'low';
+  contributionAmount: 'high' | 'medium' | 'low';
+  growthTrend: 'up' | 'flat' | 'down';
+  adEfficiency: 'high' | 'medium' | 'low';
+  overall: 'invest' | 'maintain' | 'reduce' | 'exit';
+}
+
+export interface ChannelMetrics {
+  channel: string;
+  revenue: number;
+  variableCosts: number;
+  contributionMargin: number;
+  contributionMarginRate: number;
+  allocatedFixedCosts: number;
+  operatingProfit: number;
+  revenueShare: number;
+  revenueGrowthRate: number;
+  adSpend: number;
+  adRoi: number;
+  score: ChannelScore;
+}
+
+export interface ScenarioResult extends FinancialMetrics {
+  params: ScenarioParams;
+  label: string;
+}
