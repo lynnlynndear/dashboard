@@ -6,6 +6,9 @@ import { DataEntry } from './pages/DataEntry';
 import { ChannelAnalysis } from './pages/ChannelAnalysis';
 import { ScenarioSimulation } from './pages/ScenarioSimulation';
 import { Placeholder } from './pages/Placeholder';
+import { Report } from './pages/Report';
+import { BpManagement } from './pages/BpManagement';
+import { ANALYSIS_MOCK } from './lib/mockData';
 
 export default function App() {
   const { periods, activePeriod, activeTab, setActivePeriod, setActiveTab, addPeriodData } = useAppState();
@@ -19,7 +22,7 @@ export default function App() {
     setActiveTab('dashboard');
   };
 
-  const periodList = periods.map((p) => p.period);
+  const periodList = ANALYSIS_MOCK.periods.map((p) => p.id);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -32,10 +35,8 @@ export default function App() {
       />
 
       <main className="max-w-screen-xl mx-auto">
-        {activeTab === 'dashboard' && <Dashboard />}
-        {activeTab === 'bp' && (
-          <Placeholder title="年度 BP 管理" description="上传已审批 BP，锁定当前生效版本，拆解到品类、SPU、渠道和月度目标。下版本上线" icon="📋" />
-        )}
+        {activeTab === 'dashboard' && <Dashboard activePeriod={activePeriod} onPeriodChange={setActivePeriod} />}
+        {activeTab === 'bp' && <BpManagement />}
         {activeTab === 'roadmap' && (
           <Placeholder title="新品/SPU Roadmap" description="跟踪新品预热、到货、首月达成偏差，识别供应/节奏/需求/渠道根因。下版本上线" icon="🗺️" />
         )}
@@ -61,9 +62,7 @@ export default function App() {
         {activeTab === 'variance' && (
           <Placeholder title="BP 偏差归因" description="把未达 BP 拆成供应、节奏、需求、渠道、投入和 BP 假设问题，生成可直接使用的经营语言。下版本上线" icon="📊" />
         )}
-        {activeTab === 'report' && (
-          <Placeholder title="经营会报告" description="固定输出经营总览、偏差分析、产品、渠道、营销、新品、库存与决策事项，支持 Excel/PDF 导出。下版本上线" icon="📄" />
-        )}
+        {activeTab === 'report' && <Report />}
       </main>
     </div>
   );

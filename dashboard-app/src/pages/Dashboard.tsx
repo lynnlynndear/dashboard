@@ -1,8 +1,11 @@
 import { ANALYSIS_MOCK } from '../lib/mockData';
 
-const { cockpit, categories, channels, qualityChecks, periods, bpVersion, currentPeriod } = ANALYSIS_MOCK;
+interface DashboardProps {
+  activePeriod: string;
+  onPeriodChange: (id: string) => void;
+}
 
-const currentLabel = periods.find((p) => p.id === currentPeriod)?.label ?? currentPeriod;
+const { categories, channels, qualityChecks, periods, bpVersion, periodCockpits } = ANALYSIS_MOCK;
 
 const BRIDGE_COLORS = [
   'bg-blue-300', 'bg-blue-400', 'bg-blue-500',
@@ -26,7 +29,16 @@ const CHANNEL_ACTION_STYLES: Record<string, string> = {
   '观察': 'bg-gray-100 text-gray-600',
 };
 
-export function Dashboard() {
+const TONE_STYLES: Record<string, string> = {
+  danger:  'border-red-200 bg-red-50 text-red-700',
+  warning: 'border-amber-200 bg-amber-50 text-amber-700',
+  success: 'border-emerald-200 bg-emerald-50 text-emerald-700',
+  normal:  'border-gray-200 bg-white text-gray-800',
+};
+
+export function Dashboard({ activePeriod, onPeriodChange }: DashboardProps) {
+  const cockpit = periodCockpits[activePeriod] ?? periodCockpits['2026-04'];
+  const currentLabel = periods.find((p) => p.id === activePeriod)?.label ?? activePeriod;
   const gmv = cockpit.bridge[0].amount;
 
   return (
@@ -60,25 +72,37 @@ export function Dashboard() {
         </div>
       )}
 
-      {/* Period Trend Strip */}
+      {/* Period Trend Strip – clickable */}
       <div className="flex gap-2">
-        {periods.map((p) => (
-          <div
-            key={p.id}
-            className={`flex-1 bg-white rounded-lg border px-3 py-2 ${p.id === currentPeriod ? 'border-blue-400 ring-1 ring-blue-200 shadow-sm' : 'border-gray-100'}`}
-          >
-            <div className="text-xs text-gray-400 mb-1">{p.label}</div>
-            <div className="text-sm font-bold text-gray-800">{p.netSales}<span className="text-xs font-normal text-gray-400 ml-0.5">万</span></div>
-            <div className="flex items-center justify-between mt-1 text-xs">
-              <span className={`font-medium ${p.bpAchievement >= 95 ? 'text-emerald-600' : p.bpAchievement >= 85 ? 'text-amber-600' : 'text-red-500'}`}>
-                BP {p.bpAchievement}%
-              </span>
-              <span className={`${p.marketGap >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
-                {p.marketGap > 0 ? '+' : ''}{p.marketGap}pct
-              </span>
-            </div>
-          </div>
-        ))}
+        {periods.map((p) => {
+          const isActive = p.id === activePeriod;
+          return (
+            <button
+              key={p.id}
+              onClick={() => onPeriodChange(p.id)}
+              className={`flex-1 rounded-lg border px-3 py-2 text-left transition-all cursor-pointer
+                ${isActive
+                  ? 'border-blue-400 ring-2 ring-blue-200 shadow-md bg-white'
+                  : 'border-gray-100 bg-white hover:border-blue-200 hover:shadow-sm'}`}
+            >
+              <div className="text-xs text-gray-400 mb-1">{p.label}</div>
+              <div className="text-sm font-bold text-gray-800">
+                {p.netSales}<span className="text-xs font-normal text-gray-400 ml-0.5">万</span>
+              </div>
+              <div className="flex items-center justify-between mt-1 text-xs">
+                <span className={`font-medium ${p.bpAchievement >= 95 ? 'text-emerald-600' : p.bpAchievement >= 85 ? 'text-amber-600' : 'text-red-500'}`}>
+                  BP {p.bpAchievement}%
+                </span>
+                <span className={p.marketGap >= 0 ? 'text-emerald-600' : 'text-red-500'}>
+                  {p.marketGap > 0 ? '+' : ''}{p.marketGap}pct
+                </span>
+              </div>
+              {isActive && (
+                <div className="mt-1.5 h-0.5 bg-blue-400 rounded-full" />
+              )}
+            </button>
+          );
+        })}
       </div>
 
       {/* Conclusion Card */}
@@ -105,36 +129,28 @@ export function Dashboard() {
 
       {/* 8 KPI Cards */}
       <div className="grid grid-cols-4 gap-3">
-        {cockpit.kpis.map((kpi, i) => (
-          <div
-            key={i}
-            className={`bg-white rounded-lg border p-3 shadow-sm ${
-              kpi.tone === 'danger' ? 'border-red-200 bg-red-50' :
-              kpi.tone === 'warning' ? 'border-amber-200 bg-amber-50' :
-              kpi.tone === 'success' ? 'border-emerald-200 bg-emerald-50' :
-              'border-gray-200'
-            }`}
-          >
-            <div className="text-xs text-gray-500 mb-1">{kpi.label}</div>
-            <div className={`text-xl font-bold leading-tight ${
-              kpi.tone === 'danger' ? 'text-red-700' :
-              kpi.tone === 'warning' ? 'text-amber-700' :
-              kpi.tone === 'success' ? 'text-emerald-700' :
-              'text-gray-800'
-            }`}>
-              {kpi.value}
-              <span className="text-sm font-normal ml-0.5 text-gray-500">{kpi.unit}</span>
+        {cockpit.kpis.map((kpi, i) => {
+          const tone = (kpi as { tone: string }).tone as string;
+          const styles = TONE_STYLES[tone] ?? TONE_STYLES.normal;
+          const [borderStyle, bgStyle, textStyle] = styles.split(' ');
+          return (
+            <div key={i} className={`rounded-lg border p-3 shadow-sm ${borderStyle} ${bgStyle}`}>
+              <div className="text-xs text-gray-500 mb-1">{kpi.label}</div>
+              <div className={`text-xl font-bold leading-tight ${textStyle}`}>
+                {kpi.value}
+                <span className="text-sm font-normal ml-0.5 text-gray-500">{kpi.unit}</span>
+              </div>
+              <div className="text-[11px] text-gray-400 mt-0.5">{kpi.sub}</div>
             </div>
-            <div className="text-[11px] text-gray-400 mt-0.5">{kpi.sub}</div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Profit Bridge + Next Actions */}
       <div className="grid grid-cols-5 gap-4">
         <div className="col-span-3 bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
           <h3 className="text-sm font-semibold text-gray-800 mb-1">利润桥 · 5 层经营贡献</h3>
-          <p className="text-xs text-gray-400 mb-4">GMV → 品类经营贡献，单位：万元</p>
+          <p className="text-xs text-gray-400 mb-4">GMV → 品类经营贡献，单位：万元 &nbsp;·&nbsp; {currentLabel}</p>
           <div className="space-y-2.5">
             {cockpit.bridge.map((item, i) => {
               const width = Math.round((item.amount / gmv) * 100);
@@ -146,7 +162,7 @@ export function Dashboard() {
                     <div className="w-24 text-right text-xs text-gray-600 shrink-0">{item.label}</div>
                     <div className="flex-1 h-7 bg-gray-100 rounded-sm overflow-hidden relative">
                       <div
-                        className={`h-full ${BRIDGE_COLORS[i]} rounded-sm transition-all`}
+                        className={`h-full ${BRIDGE_COLORS[i]} rounded-sm transition-all duration-500`}
                         style={{ width: `${width}%` }}
                       />
                     </div>
@@ -158,9 +174,7 @@ export function Dashboard() {
                   {delta !== null && (
                     <div className="flex items-center gap-3 my-0.5">
                       <div className="w-24 shrink-0" />
-                      <div className="text-[10px] text-red-400 pl-1">
-                        ↓ {Math.abs(delta).toLocaleString()}万
-                      </div>
+                      <div className="text-[10px] text-red-400 pl-1">↓ {Math.abs(delta).toLocaleString()}万</div>
                     </div>
                   )}
                 </div>

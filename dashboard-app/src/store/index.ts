@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import type { PeriodData, TabId } from '../types';
-import { MOCK_PERIODS, CURRENT_PERIOD } from '../lib/mockData';
+import { MOCK_PERIODS, ANALYSIS_MOCK } from '../lib/mockData';
 
 export interface AppState {
   periods: PeriodData[];
@@ -13,7 +13,7 @@ export interface AppState {
 
 export function useAppState(): AppState {
   const [periods, setPeriods] = useState<PeriodData[]>(MOCK_PERIODS);
-  const [activePeriod, setActivePeriod] = useState(CURRENT_PERIOD);
+  const [activePeriod, setActivePeriod] = useState<string>(ANALYSIS_MOCK.currentPeriod);
   const [activeTab, setActiveTab] = useState<TabId>('dashboard');
 
   const addPeriodData = useCallback((data: PeriodData) => {

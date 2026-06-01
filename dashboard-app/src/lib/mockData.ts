@@ -396,6 +396,183 @@ export const ANALYSIS_MOCK = {
       next: '收缩促销，转入清库存与价格带复盘',
     },
   ],
+  // Per-period cockpit snapshots – keyed by period id
+  periodCockpits: {
+    '2026-01': {
+      conclusion: '1月销售达成 BP 88%，经营贡献率 13.4%，低于 BP 2pct。春节备货节奏偏慢，淘系与京东库存到位延迟，是主要缺口来源。',
+      reasons: [
+        '淘系 GMV 低于 BP 11%，备货到位晚导致首周缺货',
+        '剃须刀系列折扣率超预算 3pct，侵蚀毛利',
+        '新品 LF Mini Air 尚未开售，拉动贡献为零',
+        '线下门店 1 月为传统淡季，经销补货节奏延后',
+      ],
+      nextActions: [
+        { action: '跟进 2 月备货到位进度', owner: '供应链', evidence: '1月缺货天数 8 天，需提前锁仓' },
+        { action: '核查剃须刀折扣审批权限', owner: '品类运营', evidence: '折扣率超预算 3pct，需要机制控制' },
+        { action: '确认 LF Mini Air 首售时间节点', owner: '产品项目', evidence: '预热计划未启动' },
+      ],
+      kpis: [
+        { label: 'GMV', value: 3610, unit: '万', sub: 'BP 4,100万', tone: 'warning' },
+        { label: 'GSV', value: 3140, unit: '万', sub: '退货/折扣后', tone: 'normal' },
+        { label: '净销售收入', value: 3180, unit: '万', sub: '环比 -8.2%', tone: 'warning' },
+        { label: 'BP 达成率', value: 88, unit: '%', sub: '低于目标 12pct', tone: 'warning' },
+        { label: '品类经营贡献', value: 426, unit: '万', sub: '达成 BP 85%', tone: 'warning' },
+        { label: '经营贡献率', value: 13.4, unit: '%', sub: 'BP 15.5%', tone: 'warning' },
+        { label: '大盘相对增速', value: -9, unit: 'pct', sub: '淘系拖累', tone: 'danger' },
+        { label: '可售库存达成', value: 72, unit: '%', sub: '备货延迟', tone: 'warning' },
+      ],
+      bridge: [
+        { label: 'GMV', amount: 3610, note: '含补贴前成交额' },
+        { label: 'GSV', amount: 3140, note: '扣退货/折扣/返利' },
+        { label: '净销售收入', amount: 3180, note: '财务确认口径' },
+        { label: '商品毛利', amount: 1200, note: '毛利率 37.7%' },
+        { label: '渠道贡献', amount: 760, note: '扣平台/履约/售后' },
+        { label: '营销后贡献', amount: 540, note: '扣促销/投流/达人' },
+        { label: '品类经营贡献', amount: 426, note: '扣研发/样品/固定费' },
+      ],
+    },
+    '2026-02': {
+      conclusion: '2月达成 BP 91%，春节大促贡献明显，渠道结构相对均衡。抖音达播效果好于预期，但站内费用率偏高，净贡献仍为负。',
+      reasons: [
+        '春节大促淘系 GMV 超 BP 4%，节日效应明显',
+        '抖音达播贡献率转正，但站内投放费率 24% 偏高',
+        '京东 POP 受物流影响，大促期间退货率升至 26%',
+        'LF Mini Air 首售，但预热期仅 6 天，转化低于预期',
+      ],
+      nextActions: [
+        { action: '优化抖音站内投放结构', owner: '渠道运营', evidence: '站内费率 24%，行业均值 14%' },
+        { action: '复盘 LF Mini Air 首售数据', owner: '产品项目', evidence: '首月销售 62%，需区分节奏还是需求' },
+        { action: '推进京东物流协议续签', owner: '供应链', evidence: '物流延迟导致大促退货率升 6pct' },
+      ],
+      kpis: [
+        { label: 'GMV', value: 3980, unit: '万', sub: 'BP 4,370万', tone: 'warning' },
+        { label: 'GSV', value: 3450, unit: '万', sub: '退货/折扣后', tone: 'normal' },
+        { label: '净销售收入', value: 3420, unit: '万', sub: '环比 +7.5%', tone: 'success' },
+        { label: 'BP 达成率', value: 91, unit: '%', sub: '低于目标 9pct', tone: 'warning' },
+        { label: '品类经营贡献', value: 458, unit: '万', sub: '达成 BP 89%', tone: 'warning' },
+        { label: '经营贡献率', value: 13.4, unit: '%', sub: 'BP 14.8%', tone: 'warning' },
+        { label: '大盘相对增速', value: -6, unit: 'pct', sub: '抖音费率拖累', tone: 'warning' },
+        { label: '可售库存达成', value: 84, unit: '%', sub: '新品上市中', tone: 'warning' },
+      ],
+      bridge: [
+        { label: 'GMV', amount: 3980, note: '含补贴前成交额' },
+        { label: 'GSV', amount: 3450, note: '扣退货/折扣/返利' },
+        { label: '净销售收入', amount: 3420, note: '财务确认口径' },
+        { label: '商品毛利', amount: 1296, note: '毛利率 37.9%' },
+        { label: '渠道贡献', amount: 830, note: '扣平台/履约/售后' },
+        { label: '营销后贡献', amount: 580, note: '扣促销/投流/达人' },
+        { label: '品类经营贡献', amount: 458, note: '扣研发/样品/固定费' },
+      ],
+    },
+    '2026-03': {
+      conclusion: '3月达成 BP 95%，是近 4 个月最佳表现。淘系与京东均超 BP，剃须刀系列开始执行收缩策略，贡献率同比改善 2pct。',
+      reasons: [
+        '淘系 38 大促蓄水效果好，3 月 GMV 超 BP 6%',
+        '剃须刀收缩折扣，贡献率从 -7.5% 改善至 -3.2%',
+        'LF Mini Air 库存补齐，首月缺货问题缓解',
+        '京东自营签署新物流协议，退货率下降 4pct',
+      ],
+      nextActions: [
+        { action: '锁定 38 大促备货方案并延伸至 4 月', owner: '供应链', evidence: '3月库存达成 94%，需维持节奏' },
+        { action: '评估剃须刀收缩方案成效', owner: '品类运营', evidence: '贡献率改善 4pct，需决定是否继续' },
+        { action: '启动 LF Mini Air 90 天转化追踪', owner: '数据分析', evidence: '首月转化率 2.1%，需验证留存' },
+      ],
+      kpis: [
+        { label: 'GMV', value: 4460, unit: '万', sub: 'BP 4,690万', tone: 'normal' },
+        { label: 'GSV', value: 3870, unit: '万', sub: '退货/折扣后', tone: 'normal' },
+        { label: '净销售收入', value: 3760, unit: '万', sub: '环比 +9.9%', tone: 'success' },
+        { label: 'BP 达成率', value: 95, unit: '%', sub: '低于目标 5pct', tone: 'normal' },
+        { label: '品类经营贡献', value: 544, unit: '万', sub: '达成 BP 94%', tone: 'normal' },
+        { label: '经营贡献率', value: 14.5, unit: '%', sub: 'BP 15.2%', tone: 'normal' },
+        { label: '大盘相对增速', value: -3, unit: 'pct', sub: '接近持平', tone: 'normal' },
+        { label: '可售库存达成', value: 94, unit: '%', sub: '补货到位', tone: 'success' },
+      ],
+      bridge: [
+        { label: 'GMV', amount: 4460, note: '含补贴前成交额' },
+        { label: 'GSV', amount: 3870, note: '扣退货/折扣/返利' },
+        { label: '净销售收入', amount: 3760, note: '财务确认口径' },
+        { label: '商品毛利', amount: 1462, note: '毛利率 38.9%' },
+        { label: '渠道贡献', amount: 940, note: '扣平台/履约/售后' },
+        { label: '营销后贡献', amount: 668, note: '扣促销/投流/达人' },
+        { label: '品类经营贡献', amount: 544, note: '扣研发/样品/固定费' },
+      ],
+    },
+    '2026-04': {
+      conclusion: '本月销售达成 BP 92%，但品类经营贡献低于 BP 18%。主要矛盾不是规模不足，而是抖音渠道跑输大盘、新品预热和可售库存没有按 BP 节奏兑现。',
+      reasons: [
+        '抖音 GMV 环比增长 3%，但低于行业大盘 12 个百分点',
+        'LF Mini Air 实际预热 6 天，低于计划 21 天',
+        '新品可售库存仅达 BP 58%，断货 12 天',
+        '达人投放 90 天窗口未完整，当前贡献拉动不足',
+      ],
+      nextActions: [
+        { action: '优化抖音投放结构', owner: '渠道运营', evidence: '费用率 22.4%，贡献为负，且跑输大盘' },
+        { action: '补齐新品预热与到货节奏', owner: '产品项目', evidence: '预热不足 15 天，到货延迟 8 天' },
+        { action: '收缩成熟品低效促销', owner: '品类运营', evidence: '剃须刀系列销售增长但经营贡献下降' },
+      ],
+      kpis: [
+        { label: 'GMV', value: 4860, unit: '万', sub: 'BP 5,280万', tone: 'normal' },
+        { label: 'GSV', value: 4218, unit: '万', sub: '退货/折扣后', tone: 'normal' },
+        { label: '净销售收入', value: 3926, unit: '万', sub: '环比 +4.4%', tone: 'success' },
+        { label: 'BP 达成率', value: 92, unit: '%', sub: '低于目标 8pct', tone: 'warning' },
+        { label: '品类经营贡献', value: 510, unit: '万', sub: '低于 BP 18%', tone: 'danger' },
+        { label: '经营贡献率', value: 13.0, unit: '%', sub: 'BP 15.8%', tone: 'warning' },
+        { label: '大盘相对增速', value: -12, unit: 'pct', sub: '抖音渠道拖累', tone: 'danger' },
+        { label: '可售库存达成', value: 58, unit: '%', sub: '新品断货风险', tone: 'danger' },
+      ],
+      bridge: [
+        { label: 'GMV', amount: 4860, note: '含补贴前成交额' },
+        { label: 'GSV', amount: 4218, note: '扣退货/折扣/返利' },
+        { label: '净销售收入', amount: 3926, note: '财务确认口径' },
+        { label: '商品毛利', amount: 1510, note: '毛利率 38.5%' },
+        { label: '渠道贡献', amount: 982, note: '扣平台/履约/售后' },
+        { label: '营销后贡献', amount: 646, note: '扣促销/投流/达人' },
+        { label: '品类经营贡献', amount: 510, note: '扣研发/样品/固定费' },
+      ],
+    },
+  } as Record<string, {
+    conclusion: string;
+    reasons: string[];
+    nextActions: { action: string; owner: string; evidence: string }[];
+    kpis: { label: string; value: number; unit: string; sub: string; tone: string }[];
+    bridge: { label: string; amount: number; note: string }[];
+  }>,
+
+  // Annual BP monthly targets (12 months)
+  bpTargets: {
+    months: ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'],
+    channels: ['淘系', '抖音自播', '抖音达播', '京东自营（财务）', '京东自营（业务）', '京东POP', '拼多多', '得物', '视频号/官网', '线下直营', '线下经销'],
+    // GMV targets by channel × month (万元)
+    gmv: {
+      '淘系':           [1400,1560,1720,1900,2100,1980,1650,1750,1820,2200,2350,2600],
+      '抖音自播':        [ 480, 520, 600, 680, 780, 720, 600, 650, 700, 880, 960,1100],
+      '抖音达播':        [ 320, 360, 420, 480, 560, 520, 430, 460, 500, 620, 680, 780],
+      '京东自营（财务）': [ 280, 310, 340, 380, 440, 410, 340, 360, 380, 460, 500, 560],
+      '京东自营（业务）': [ 310, 340, 380, 420, 490, 460, 380, 400, 430, 510, 560, 620],
+      '京东POP':        [ 180, 200, 220, 250, 290, 270, 220, 240, 260, 310, 340, 380],
+      '拼多多':         [ 240, 270, 300, 330, 380, 360, 300, 320, 340, 410, 450, 500],
+      '得物':           [  80,  90, 100, 110, 130, 120, 100, 110, 120, 140, 160, 180],
+      '视频号/官网':     [  60,  70,  80,  90, 100,  95,  80,  85,  90, 110, 120, 140],
+      '线下直营':        [ 280, 260, 290, 320, 360, 340, 310, 330, 350, 420, 460, 520],
+      '线下经销':        [ 180, 170, 190, 210, 240, 220, 200, 215, 230, 270, 300, 340],
+    } as Record<string, number[]>,
+    // Key P&L metrics by month (全渠道合计, 万元)
+    summary: [
+      { month: '1月',  gmv: 4100, revenue: 3618, grossProfit: 1374, contribution: 501,  bpMargin: 13.8 },
+      { month: '2月',  gmv: 4370, revenue: 3763, grossProfit: 1427, contribution: 515,  bpMargin: 13.7 },
+      { month: '3月',  gmv: 4690, revenue: 3965, grossProfit: 1543, contribution: 578,  bpMargin: 14.6 },
+      { month: '4月',  gmv: 5280, revenue: 4268, grossProfit: 1686, contribution: 622,  bpMargin: 14.6 },
+      { month: '5月',  gmv: 6020, revenue: 5020, grossProfit: 1960, contribution: 740,  bpMargin: 14.7 },
+      { month: '6月',  gmv: 5680, revenue: 4738, grossProfit: 1848, contribution: 698,  bpMargin: 14.7 },
+      { month: '7月',  gmv: 4720, revenue: 3937, grossProfit: 1535, contribution: 580,  bpMargin: 14.7 },
+      { month: '8月',  gmv: 5020, revenue: 4188, grossProfit: 1636, contribution: 618,  bpMargin: 14.8 },
+      { month: '9月',  gmv: 5350, revenue: 4462, grossProfit: 1741, contribution: 658,  bpMargin: 14.7 },
+      { month: '10月', gmv: 6450, revenue: 5381, grossProfit: 2099, contribution: 794,  bpMargin: 14.8 },
+      { month: '11月', gmv: 7080, revenue: 5908, grossProfit: 2304, contribution: 871,  bpMargin: 14.7 },
+      { month: '12月', gmv: 7830, revenue: 6531, grossProfit: 2547, contribution: 963,  bpMargin: 14.7 },
+    ],
+  },
+
   qualityChecks: {
     blockers: 0,
     warnings: 5,
