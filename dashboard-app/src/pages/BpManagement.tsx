@@ -22,7 +22,7 @@ function fmt(n: number) {
 
 export function BpManagement() {
   const [view, setView] = useState<ViewMode>('summary');
-  const [selectedChannel, setSelectedChannel] = useState(bpTargets.channels[0]);
+  const [selectedChannel, setSelectedChannel] = useState<string>(bpTargets.channels[0]);
   const [showUpload, setShowUpload] = useState(false);
   const [uploadFile, setUploadFile] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -132,7 +132,7 @@ export function BpManagement() {
                 ].map((row, ri) => {
                   const annual = row.key === 'bpMargin'
                     ? (annualTotal.contribution / annualTotal.revenue * 100).toFixed(1)
-                    : fmt((annualTotal as Record<string, number>)[row.key] ?? 0);
+                    : fmt((annualTotal as unknown as Record<string, number>)[row.key] ?? 0);
                   return (
                     <tr key={row.key} className={`border-b border-gray-50 ${ri % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'} ${row.bold ? 'font-semibold' : ''}`}>
                       <td className={`sticky left-0 ${ri % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'} px-4 py-2 ${row.color} font-medium`}>
@@ -140,8 +140,8 @@ export function BpManagement() {
                       </td>
                       {bpTargets.summary.map((s, mi) => {
                         const val = row.key === 'bpMargin'
-                          ? `${(s as Record<string, number>)[row.key].toFixed(1)}%`
-                          : fmt((s as Record<string, number>)[row.key]);
+                          ? `${(s as unknown as Record<string, number>)[row.key].toFixed(1)}%`
+                          : fmt((s as unknown as Record<string, number>)[row.key]);
                         return (
                           <td key={mi} className={`px-3 py-2 text-right ${row.color}`}>{val}</td>
                         );

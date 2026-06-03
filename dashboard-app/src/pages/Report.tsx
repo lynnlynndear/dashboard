@@ -93,7 +93,8 @@ export function Report({ activePeriod }: ReportProps) {
     setStreamBuffer('');
 
     let full = '';
-    const periodData = { ...mock, cockpit: c, currentPeriod: periodLabel };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const periodData = { ...mock, cockpit: c, currentPeriod: periodLabel } as unknown as typeof ANALYSIS_MOCK;
     try {
       await chat(next, periodData, (chunk) => {
         full += chunk;
@@ -260,7 +261,7 @@ export function Report({ activePeriod }: ReportProps) {
                              fontWeight: 600 }}>
                   {m.roi}x
                 </td>
-                <td style={{ padding: '7px 10px', color: '#6b7280' }}>{m.window}</td>
+                <td style={{ padding: '7px 10px', color: '#6b7280' }}>{m.windowDays} 天</td>
                 <td style={{ padding: '7px 10px', color: '#6b7280', fontSize: 11 }}>{m.evidence}</td>
                 <td style={{ padding: '7px 10px' }}>
                   <span style={{ background: actionColor(m.conclusion.slice(0, 2)) + '20',
