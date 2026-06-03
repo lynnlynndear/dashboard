@@ -66,14 +66,30 @@ export interface ChannelData {
   action: '加码' | '维持' | '优化' | '收缩' | '观察';
 }
 
+export type MarketingConclusion = '加码' | '维持' | '优化' | '观察' | '收缩' | '标记弱归因';
+
+export interface MarketingWindowData {
+  gmvLift: number | null;   // 万元，null 表示窗口未完成
+  costRate: number | null;  // 费用率 %
+  contributionRate: number | null; // 贡献率 %
+}
+
 export interface MarketingItem {
   name: string;
-  spend: number;
+  channel: string;
+  spend: number;           // 万元
   roi: number;
-  contributionLift: number;
-  window: string;
-  conclusion: string;
+  contributionLift: number; // 贡献拉动率 pct
+  windowDays: number;      // 已观察天数
+  conclusion: MarketingConclusion;
   evidence: string;
+  // 三段窗口数据
+  w0_30: MarketingWindowData;
+  w31_60: MarketingWindowData;
+  w61_90: MarketingWindowData;
+  // 对比大盘
+  marketBenchmark: number | null; // 大盘同期增速 %
+  actualGrowth: number | null;    // 实际增速 %
 }
 
 export interface RoadmapItem {

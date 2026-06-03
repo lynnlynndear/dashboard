@@ -320,39 +320,63 @@ export const ANALYSIS_MOCK = {
   marketing: [
     {
       name: '抖音达人投放',
+      channel: '抖音',
       spend: 268,
       roi: 1.4,
       contributionLift: -0.2,
-      window: '52/90 天',
-      conclusion: '观察并优化',
-      evidence: '销售增长但跑输大盘，贡献拉动不足',
+      windowDays: 52,
+      conclusion: '优化',
+      evidence: '销售增长但跑输大盘 12pct，贡献拉动为负，窗口未完整，费率 22.4% 远超 BP 14%',
+      w0_30:  { gmvLift: 186, costRate: 21.5, contributionRate: -1.8 },
+      w31_60: { gmvLift: 94,  costRate: 23.6, contributionRate: -2.1 },
+      w61_90: { gmvLift: null, costRate: null, contributionRate: null },
+      marketBenchmark: 12,
+      actualGrowth: 3,
     },
     {
       name: '淘系站内投放',
+      channel: '淘系',
       spend: 156,
       roi: 3.2,
       contributionLift: 0.8,
-      window: '90/90 天',
+      windowDays: 90,
       conclusion: '维持',
-      evidence: '费用率稳定，经营贡献可接受',
+      evidence: '费用率稳定在 9.3%，三段窗口贡献均为正，经营贡献可接受',
+      w0_30:  { gmvLift: 210, costRate: 9.8, contributionRate: 2.4 },
+      w31_60: { gmvLift: 162, costRate: 9.1, contributionRate: 1.8 },
+      w61_90: { gmvLift: 128, costRate: 8.8, contributionRate: 1.6 },
+      marketBenchmark: 8,
+      actualGrowth: 11,
     },
     {
       name: '京东站内投放',
+      channel: '京东',
       spend: 92,
       roi: 4.1,
       contributionLift: 1.3,
-      window: '90/90 天',
+      windowDays: 90,
       conclusion: '加码',
-      evidence: '跑赢大盘且贡献改善',
+      evidence: '跑赢大盘 5pct，三段窗口 ROI 持续提升，贡献拉动稳定正向',
+      w0_30:  { gmvLift: 148, costRate: 10.2, contributionRate: 3.1 },
+      w31_60: { gmvLift: 136, costRate: 9.8,  contributionRate: 3.4 },
+      w61_90: { gmvLift: 93,  costRate: 9.1,  contributionRate: 3.8 },
+      marketBenchmark: 8,
+      actualGrowth: 13,
     },
     {
       name: '品牌内容共摊',
+      channel: '跨渠道',
       spend: 88,
       roi: 0.9,
       contributionLift: 0.1,
-      window: '弱归因',
+      windowDays: 90,
       conclusion: '标记弱归因',
-      evidence: '没有明确产品或渠道，需要进入品类共摊池',
+      evidence: '无明确 SPU 或渠道归因，已进入品类共摊池，无法评估拉动效果',
+      w0_30:  { gmvLift: null, costRate: null, contributionRate: null },
+      w31_60: { gmvLift: null, costRate: null, contributionRate: null },
+      w61_90: { gmvLift: null, costRate: null, contributionRate: null },
+      marketBenchmark: null,
+      actualGrowth: null,
     },
   ],
   roadmap: [
@@ -659,3 +683,347 @@ export const ANALYSIS_MOCK = {
     },
   },
 } as const;
+
+// ─── BP 偏差归因 Mock 数据 ────────────────────────────────────────────────────
+
+export type VarianceDimension =
+  | '供应问题'
+  | '节奏问题'
+  | '需求问题'
+  | '渠道问题'
+  | '投入问题'
+  | 'BP假设问题';
+
+export interface VarianceAttribution {
+  dimension: VarianceDimension;
+  impact: number;          // 对经营贡献的影响（万元，负数=拖累）
+  severity: 'high' | 'medium' | 'low' | 'pending';
+  evidence: string;        // 归因证据
+  detail: string;          // 数据支撑
+}
+
+export interface VariancePeriod {
+  period: string;
+  label: string;
+  // 前置条件
+  preconditions: {
+    bpLocked: boolean;
+    dataQualityOk: boolean;
+    periodComplete: boolean;
+    warnings: string[];
+  };
+  // 达成差异
+  gap: {
+    bpRevenue: number;
+    actualRevenue: number;
+    bpContribution: number;
+    actualContribution: number;
+    bpContributionRate: number;
+    actualContributionRate: number;
+  };
+  // 归因
+  attributions: VarianceAttribution[];
+  // 经营语言（可直接用于经营会的结论句）
+  managementLanguage: string[];
+  // 待业务解释项
+  pendingItems: {
+    item: string;
+    owner: string;
+    reason: string;
+  }[];
+}
+
+export const VARIANCE_MOCK: Record<string, VariancePeriod> = {
+  '2026-01': {
+    period: '2026-01',
+    label: '2026年1月',
+    preconditions: {
+      bpLocked: true,
+      dataQualityOk: true,
+      periodComplete: true,
+      warnings: ['线下门店部分门店数据延迟 2 天到账，已用历史均值填补'],
+    },
+    gap: {
+      bpRevenue: 3618,
+      actualRevenue: 3180,
+      bpContribution: 501,
+      actualContribution: 426,
+      bpContributionRate: 13.8,
+      actualContributionRate: 13.4,
+    },
+    attributions: [
+      {
+        dimension: '供应问题',
+        impact: -32,
+        severity: 'high',
+        evidence: '淘系备货到位时间晚 5 天，首周断货 8 天',
+        detail: '断货期间淘系日均缺失 GMV 约 4万，累计损失 ~32万经营贡献',
+      },
+      {
+        dimension: '节奏问题',
+        impact: -18,
+        severity: 'medium',
+        evidence: '春节大促预热活动启动晚，蓄水期压缩至 12 天（计划 21 天）',
+        detail: '历史数据显示预热每少 3 天贡献缺口约 4.5万，本期少 9 天',
+      },
+      {
+        dimension: '渠道问题',
+        impact: -14,
+        severity: 'medium',
+        evidence: '线下经销商补货推迟，1月为传统淡季叠加节前备货延后',
+        detail: '线下经销 GMV 完成 BP 的 82%，贡献缺口约 14万',
+      },
+      {
+        dimension: '投入问题',
+        impact: -8,
+        severity: 'low',
+        evidence: '剃须刀系列折扣率超预算 3pct，侵蚀毛利',
+        detail: '超额折扣涉及流水约 260万，侵蚀贡献约 8万',
+      },
+      {
+        dimension: '需求问题',
+        impact: -3,
+        severity: 'low',
+        evidence: '1月行业大盘环比下行，整体需求弱于去年同期',
+        detail: '行业大盘 GMV 同比 -4%，品牌对齐后需求贡献缺口约 3万',
+      },
+      {
+        dimension: 'BP假设问题',
+        impact: 0,
+        severity: 'pending',
+        evidence: '1月 BP 目标是否高估备货节奏，待经营分析岗与产品项目确认',
+        detail: '若按实际可售库存水位重算，理论达成约 90%，差口尚在合理范围',
+      },
+    ],
+    managementLanguage: [
+      '1月经营贡献缺口 75万，其中 43%（32万）来自淘系备货延迟导致的首周断货，属供应节奏问题，非需求走弱。',
+      '剃须刀折扣超标侵蚀 8万贡献，需要在 2 月的折扣审批机制中补充上限控制。',
+      '整体需求端影响仅 3万，1月大盘走弱不是主要矛盾，不建议以此为由下调 2 月目标。',
+    ],
+    pendingItems: [
+      { item: '1月 BP 目标中备货节奏假设是否合理', owner: '经营分析岗', reason: '如假设偏高需在下版本 BP 中修正起始库存假设' },
+      { item: '线下经销补货延迟是否属于系统性问题', owner: '供应链', reason: '如属周期性延迟，需在 BP 中扣除首周库存不确定性' },
+    ],
+  },
+
+  '2026-02': {
+    period: '2026-02',
+    label: '2026年2月',
+    preconditions: {
+      bpLocked: true,
+      dataQualityOk: true,
+      periodComplete: true,
+      warnings: ['京东 POP 退货率异常偏高（26%），部分退货金额核算口径待确认'],
+    },
+    gap: {
+      bpRevenue: 3763,
+      actualRevenue: 3420,
+      bpContribution: 515,
+      actualContribution: 458,
+      bpContributionRate: 13.7,
+      actualContributionRate: 13.4,
+    },
+    attributions: [
+      {
+        dimension: '渠道问题',
+        impact: -35,
+        severity: 'high',
+        evidence: '抖音站内投放费率 24%，行业均值 14%，费率超标侵蚀净贡献',
+        detail: '抖音当月 GMV 约 820万，10pct 超额费率对应侵蚀贡献约 35万',
+      },
+      {
+        dimension: '节奏问题',
+        impact: -22,
+        severity: 'high',
+        evidence: 'LF Mini Air 首售预热仅 6 天（计划 21 天），春节档转化低于预期',
+        detail: '新品首月 GMV 达成 BP 62%，缺口 38% 中至少 50% 可归因于预热不足',
+      },
+      {
+        dimension: '供应问题',
+        impact: -12,
+        severity: 'medium',
+        evidence: '京东 POP 物流延迟，大促期间退货率升至 26%（正常约 18%）',
+        detail: '退货增量约 8pct × 京东 POP 流水约 150万 = 约 12万净销售缺口',
+      },
+      {
+        dimension: '投入问题',
+        impact: -8,
+        severity: 'low',
+        evidence: '春节大促礼品套装折扣补贴超出预算',
+        detail: '折扣超支约 25万，对应贡献影响约 8万',
+      },
+      {
+        dimension: '需求问题',
+        impact: 10,
+        severity: 'low',
+        evidence: '春节效应明显，淘系 GMV 超 BP 4%，实际需求优于预期',
+        detail: '需求端正向贡献约 10万，部分抵消了渠道与节奏的负面影响',
+      },
+      {
+        dimension: 'BP假设问题',
+        impact: -10,
+        severity: 'pending',
+        evidence: 'LF Mini Air 首售 BP 是否过度乐观，需新品项目组确认',
+        detail: '若重算 LF Mini Air 合理基准，贡献基准可能下调约 10万',
+      },
+    ],
+    managementLanguage: [
+      '2月贡献缺口 57万，主要矛盾是抖音费率失控（-35万）和新品 LF Mini Air 预热不足（-22万），两项合计占缺口的 100% 以上。',
+      '需求端实际好于 BP（春节效应+10万），因此不应归因于市场走弱，问题在于运营执行。',
+      'LF Mini Air 首售数据需要单独复盘：供应和预热是主因，转化能力的判断需等到 4 月才能定论。',
+    ],
+    pendingItems: [
+      { item: 'LF Mini Air 首月 BP 基准合理性', owner: '产品项目', reason: '若 BP 本身设置过高，需区分执行缺口与预测缺口' },
+      { item: '京东 POP 退货核算口径', owner: '财务', reason: '26% 退货率中有多少是物流取消订单（不影响贡献）需核实' },
+    ],
+  },
+
+  '2026-03': {
+    period: '2026-03',
+    label: '2026年3月',
+    preconditions: {
+      bpLocked: true,
+      dataQualityOk: true,
+      periodComplete: true,
+      warnings: [],
+    },
+    gap: {
+      bpRevenue: 3965,
+      actualRevenue: 3760,
+      bpContribution: 578,
+      actualContribution: 544,
+      bpContributionRate: 14.6,
+      actualContributionRate: 14.5,
+    },
+    attributions: [
+      {
+        dimension: '需求问题',
+        impact: 15,
+        severity: 'low',
+        evidence: '淘系 38 大促蓄水效果好于 BP，淘系 GMV 超 BP 6%',
+        detail: '淘系超额 GMV 约 90万 × 贡献率 16.5% ≈ +15万贡献',
+      },
+      {
+        dimension: '渠道问题',
+        impact: -28,
+        severity: 'medium',
+        evidence: '抖音费率环比小幅改善但仍高于行业，贡献仍为负',
+        detail: '抖音贡献为负 -18万，低于 BP 约 28万，改善方向明确但尚未修复',
+      },
+      {
+        dimension: '投入问题',
+        impact: -15,
+        severity: 'medium',
+        evidence: '剃须刀收缩折扣使毛利改善，但品牌内容费用弱归因约 88万无法精确拆解',
+        detail: '剃须刀贡献率从 -7.5% 改善至 -3.2%（+22万），但弱归因费用侵蚀约 -15万',
+      },
+      {
+        dimension: '供应问题',
+        impact: 8,
+        severity: 'low',
+        evidence: 'LF Mini Air 补库存到位，3月库存达成率升至 94%',
+        detail: '缺货问题缓解，补货后新品贡献改善约 +8万',
+      },
+      {
+        dimension: '节奏问题',
+        impact: -14,
+        severity: 'low',
+        evidence: '38 大促节奏整体对齐，但抖音预热执行仍有延迟',
+        detail: '抖音大促节奏延迟导致首日流量较差，贡献影响约 -14万',
+      },
+      {
+        dimension: 'BP假设问题',
+        impact: 0,
+        severity: 'pending',
+        evidence: '3月整体表现接近 BP，假设偏差问题不突出，暂无需调整',
+        detail: '达成率 95%，偏差主要来自执行层面，BP 假设本身合理',
+      },
+    ],
+    managementLanguage: [
+      '3月贡献缺口 34万，是近 4 个月最小，改善主要来自剃须刀收缩见效（+22万）和新品补货到位（+8万）。',
+      '抖音渠道贡献仍然是最大单项拖累（-28万），费率优化方向明确，需要在 4 月进一步执行。',
+      '需求端表现积极，38 大促带来超额贡献 +15万，验证了淘系蓄水策略的有效性，建议 4 月复制。',
+    ],
+    pendingItems: [
+      { item: '品牌内容弱归因费用 88万的归因分拆', owner: '经营分析岗', reason: '该费用目前进入品类共摊池，需确认是否有可追溯的 SPU 级别拉动' },
+    ],
+  },
+
+  '2026-04': {
+    period: '2026-04',
+    label: '2026年4月',
+    preconditions: {
+      bpLocked: true,
+      dataQualityOk: false,
+      periodComplete: true,
+      warnings: [
+        '抖音达人投放 88万缺少明确 SPU，已进入品类共摊池，可能影响渠道归因精度',
+        '行业大盘缺少 PDD 价格带数据，渠道竞争力判断降级为内部参照',
+        '12% 订单客户类型缺失，已使用"未分类"填补，影响需求归因置信度',
+      ],
+    },
+    gap: {
+      bpRevenue: 4268,
+      actualRevenue: 3926,
+      bpContribution: 622,
+      actualContribution: 510,
+      bpContributionRate: 14.6,
+      actualContributionRate: 13.0,
+    },
+    attributions: [
+      {
+        dimension: '渠道问题',
+        impact: -58,
+        severity: 'high',
+        evidence: '抖音 GMV 达成 BP 76%，渠道贡献为 -22万；同期行业大盘+12%，品牌跑输 12pct',
+        detail: '抖音贡献缺口 = 抖音 BP 贡献约 80万 - 实际 -22万 = 约 -102万，扣除大盘系统性影响后，渠道执行问题约 -58万',
+      },
+      {
+        dimension: '投入问题',
+        impact: -28,
+        severity: 'high',
+        evidence: '达人投放费率 22.4%（BP 14%），超额费用直接压缩贡献；ROI 仅 1.4 低于 BP 假设 2.5',
+        detail: '超额费率 8.4pct × 抖音流水约 1250万 × 贡献传导系数 ≈ -28万贡献',
+      },
+      {
+        dimension: '供应问题',
+        impact: -18,
+        severity: 'high',
+        evidence: 'LF Mini Air 可售库存仅达 BP 58%，断货 12 天',
+        detail: '断货 12 天 × 日均缺失 GMV 约 2.5万 × 贡献率 16% ≈ -18万经营贡献',
+      },
+      {
+        dimension: '节奏问题',
+        impact: -12,
+        severity: 'medium',
+        evidence: 'LF Mini Air 预热实际 6 天 vs 计划 21 天，首月转化率仅 2.1%',
+        detail: '预热不足导致达人投放窗口未满 30 天，首月拉动系数低于 BP 假设，贡献缺口约 -12万',
+      },
+      {
+        dimension: '需求问题',
+        impact: -6,
+        severity: 'low',
+        evidence: '电动牙刷类目行业大盘走弱，品牌大盘相对增速 -12pct（整体 -9pct）',
+        detail: '剔除渠道与投放因素后，需求端贡献影响约 -6万，属于弱归因范围',
+      },
+      {
+        dimension: 'BP假设问题',
+        impact: 0,
+        severity: 'pending',
+        evidence: '抖音 BP GMV 5,280万是否高估了达播贡献？LF Mini Air 首售假设是否需要重新核定？',
+        detail: '待产品项目与渠道运营联合确认：若按保守基准重算，BP 贡献基准可能下调 10～20万',
+      },
+    ],
+    managementLanguage: [
+      '4月经营贡献缺口 112万，最大单项是抖音渠道执行问题（-58万），费率失控和跑输大盘是核心矛盾，不是市场需求走弱。',
+      '投入效率低下（-28万）：达人费率 22.4% 远超 BP 的 14%，且 ROI 仅 1.4，在贡献为负的情况下继续加码是错误的，需立即调整。',
+      '供应链问题（-18万）：LF Mini Air 断货 12 天不是预测失准，是执行层面的库存管理缺口，需要单独复盘补货 SOP。',
+      '需求端影响仅 -6万，大盘相对跑输的 -12pct 主要由渠道结构问题解释，不应将整体贡献缺口归因于外部需求。',
+    ],
+    pendingItems: [
+      { item: '抖音 BP 目标合理性：达播贡献假设是否需要修正', owner: '渠道运营 + 经营分析岗', reason: '如 BP 达播假设系统性偏高，需在下版本 BP 中修正达播贡献率上限' },
+      { item: 'LF Mini Air 首售 BP 基准确认', owner: '产品项目', reason: '62% 的达成率中，多少是预测错误、多少是执行缺口，影响后续月份的目标设定' },
+      { item: '88万弱归因达人费用的 SPU 追溯可行性', owner: '经营分析岗', reason: '若可追溯到具体品类，应从共摊池移出，改善渠道归因精度' },
+    ],
+  },
+};

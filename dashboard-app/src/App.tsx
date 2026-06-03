@@ -8,6 +8,8 @@ import { ScenarioSimulation } from './pages/ScenarioSimulation';
 import { Placeholder } from './pages/Placeholder';
 import { Report } from './pages/Report';
 import { BpManagement } from './pages/BpManagement';
+import { BpVariance } from './pages/BpVariance';
+import { MarketingAnalysis } from './pages/MarketingAnalysis';
 import { ANALYSIS_MOCK } from './lib/mockData';
 
 export default function App() {
@@ -53,16 +55,12 @@ export default function App() {
         {activeTab === 'channel' && currentPeriod && (
           <ChannelAnalysis currentPeriod={currentPeriod} previousPeriod={previousPeriod} />
         )}
-        {activeTab === 'marketing' && (
-          <Placeholder title="营销敏感性" description="用 0-30/31-60/61-90 天窗口判断投放是否拉动销售和贡献，输出加码/维持/优化/观察/收缩建议。下版本上线" icon="📢" />
-        )}
+        {activeTab === 'marketing' && <MarketingAnalysis />}
         {activeTab === 'cost' && currentPeriod && (
           <ScenarioSimulation currentPeriod={currentPeriod} />
         )}
-        {activeTab === 'variance' && (
-          <Placeholder title="BP 偏差归因" description="把未达 BP 拆成供应、节奏、需求、渠道、投入和 BP 假设问题，生成可直接使用的经营语言。下版本上线" icon="📊" />
-        )}
-        {activeTab === 'report' && <Report />}
+        {activeTab === 'variance' && <BpVariance />}
+        {activeTab === 'report' && <Report activePeriod={activePeriod} />}
       </main>
     </div>
   );

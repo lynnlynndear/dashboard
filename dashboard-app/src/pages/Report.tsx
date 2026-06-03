@@ -1,6 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
 import { ANALYSIS_MOCK } from '../lib/mockData';
-import { initAI, hasAI, chat, type ChatMessage } from '../lib/aiService';
+import {
+  initAI, chat,
+  type ChatMessage, type AIProvider,
+  PROVIDER_LABELS, PROVIDER_MODELS,
+} from '../lib/aiService';
 
 // ── Calibration question presets ─────────────────────────────────────────────
 const PRESETS = [
@@ -43,11 +47,18 @@ function Card({ children, style }: { children: React.ReactNode; style?: React.CS
 }
 
 // ── Main component ────────────────────────────────────────────────────────────
-export function Report() {
+interface ReportProps {
+  activePeriod: string;
+}
+
+export function Report({ activePeriod }: ReportProps) {
   const mock = ANALYSIS_MOCK;
-  const c = mock.cockpit;
+  const periodLabel = mock.periods.find((p) => p.id === activePeriod)?.label ?? activePeriod;
+  const c = mock.periodCockpits[activePeriod] ?? mock.periodCockpits['2026-04'];
 
   // AI state
+  const [provider, setProvider] = useState<AIProvider>('claude');
+  const [model, setModel] = useState(PROVIDER_MODELS['claude'][0]);
   const [apiKeyInput, setApiKeyInput] = useState('');
   const [aiReady, setAiReady] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -60,9 +71,15 @@ export function Report() {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, streamBuffer]);
 
+  function handleProviderChange(p: AIProvider) {
+    setProvider(p);
+    setModel(PROVIDER_MODELS[p][0]);
+    setApiKeyInput('');
+  }
+
   function handleInitAI() {
     if (!apiKeyInput.trim()) return;
-    initAI(apiKeyInput.trim());
+    initAI({ provider, apiKey: apiKeyInput.trim(), model });
     setAiReady(true);
   }
 
@@ -76,8 +93,9 @@ export function Report() {
     setStreamBuffer('');
 
     let full = '';
+    const periodData = { ...mock, cockpit: c, currentPeriod: periodLabel };
     try {
-      await chat(next, mock, (chunk) => {
+      await chat(next, periodData, (chunk) => {
         full += chunk;
         setStreamBuffer(full);
       });
@@ -99,7 +117,7 @@ export function Report() {
                     padding: '14px 18px', marginBottom: 14, color: '#fff' }}>
         <div style={{ fontSize: 16, fontWeight: 700 }}>经营会报告</div>
         <div style={{ fontSize: 12, opacity: 0.85, marginTop: 2 }}>
-          {mock.currentPeriod} &nbsp;·&nbsp; {mock.bpVersion.name}
+          {periodLabel} &nbsp;·&nbsp; {mock.bpVersion.name}
         </div>
       </div>
 
@@ -321,29 +339,83 @@ export function Report() {
         </div>
       </div>
 
-      {/* API key setup */}
+      {/* API setup */}
       {!aiReady && (
-        <div style={{ padding: 16, background: '#eff6ff', borderBottom: '1px solid #bfdbfe' }}>
-          <div style={{ fontSize: 12, color: '#1e40af', marginBottom: 8, fontWeight: 600 }}>
-            输入 Anthropic API Key 启用 AI
+        <div style={{ padding: 14, background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+          {/* Provider selector */}
+          <div style={{ fontSize: 11, color: '#475569', fontWeight: 600, marginBottom: 6 }}>选择 AI 提供商</div>
+          <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
+            {(['claude', 'openai'] as AIProvider[]).map((p) => (
+              <button
+                key={p}
+                onClick={() => handleProviderChange(p)}
+                style={{
+                  flex: 1, padding: '6px 4px', fontSize: 11, fontWeight: 600,
+                  borderRadius: 6, cursor: 'pointer', transition: 'all 0.15s',
+                  border: provider === p ? '2px solid #2563eb' : '2px solid #e2e8f0',
+                  background: provider === p ? '#eff6ff' : '#fff',
+                  color: provider === p ? '#2563eb' : '#6b7280',
+                }}
+              >
+                {p === 'claude' ? '🤖 Claude' : '💬 ChatGPT'}
+                <div style={{ fontSize: 9, fontWeight: 400, marginTop: 1, opacity: 0.7 }}>
+                  {p === 'claude' ? 'Anthropic' : 'OpenAI'}
+                </div>
+              </button>
+            ))}
+          </div>
+
+          {/* Model selector */}
+          <div style={{ fontSize: 11, color: '#475569', fontWeight: 600, marginBottom: 4 }}>模型</div>
+          <select
+            value={model}
+            onChange={(e) => setModel(e.target.value)}
+            style={{ width: '100%', padding: '6px 8px', fontSize: 11, border: '1px solid #e2e8f0',
+                     borderRadius: 6, marginBottom: 10, background: '#fff', outline: 'none' }}
+          >
+            {PROVIDER_MODELS[provider].map((m) => (
+              <option key={m} value={m}>{m}</option>
+            ))}
+          </select>
+
+          {/* API Key input */}
+          <div style={{ fontSize: 11, color: '#475569', fontWeight: 600, marginBottom: 4 }}>
+            {PROVIDER_LABELS[provider]} API Key
           </div>
           <input
             type="password"
             value={apiKeyInput}
             onChange={(e) => setApiKeyInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleInitAI()}
-            placeholder="sk-ant-..."
-            style={{ width: '100%', padding: '7px 10px', fontSize: 12, border: '1px solid #93c5fd',
-                     borderRadius: 6, boxSizing: 'border-box', outline: 'none', marginBottom: 8 }}
+            placeholder={provider === 'claude' ? 'sk-ant-api03-...' : 'sk-proj-...'}
+            style={{ width: '100%', padding: '7px 10px', fontSize: 12,
+                     border: '1px solid #e2e8f0', borderRadius: 6,
+                     boxSizing: 'border-box', outline: 'none', marginBottom: 8 }}
           />
+
+          {/* Key获取链接 */}
+          <div style={{ fontSize: 10, color: '#94a3b8', marginBottom: 8 }}>
+            {provider === 'claude' ? (
+              <>获取 Key：<a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noreferrer"
+                style={{ color: '#2563eb' }}>console.anthropic.com</a></>
+            ) : (
+              <>获取 Key：<a href="https://platform.openai.com/api-keys" target="_blank" rel="noreferrer"
+                style={{ color: '#2563eb' }}>platform.openai.com</a></>
+            )}
+          </div>
+
           <button
             onClick={handleInitAI}
-            style={{ width: '100%', padding: '7px 0', background: '#2563eb', color: '#fff',
-                     border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
-            连接 AI
+            disabled={!apiKeyInput.trim()}
+            style={{ width: '100%', padding: '8px 0',
+                     background: apiKeyInput.trim() ? '#2563eb' : '#94a3b8',
+                     color: '#fff', border: 'none', borderRadius: 6,
+                     fontSize: 12, fontWeight: 600,
+                     cursor: apiKeyInput.trim() ? 'pointer' : 'not-allowed' }}>
+            连接 {provider === 'claude' ? 'Claude' : 'ChatGPT'}
           </button>
-          <div style={{ fontSize: 10, color: '#93c5fd', marginTop: 6, textAlign: 'center' }}>
-            Key 仅在本地内存使用，不会上传
+          <div style={{ fontSize: 10, color: '#94a3b8', marginTop: 6, textAlign: 'center' }}>
+            Key 仅存于本地内存，关闭页面即清除
           </div>
         </div>
       )}
@@ -466,7 +538,7 @@ export function Report() {
       <style>{`
         @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
       `}</style>
-      <div style={{ display: 'flex', height: '100%', overflow: 'hidden' }}>
+      <div style={{ display: 'flex', height: 'calc(100vh - 112px)', overflow: 'hidden' }}>
         {report}
         {aiPanel}
       </div>
