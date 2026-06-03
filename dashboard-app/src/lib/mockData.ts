@@ -126,18 +126,21 @@ export const ANALYSIS_MOCK = {
     { label: '打印/PDF', short: 'PDF' },
   ],
   modules: [
+    // 核心经营
     { id: 'dashboard', label: '经营驾驶舱', intent: '经营会入口' },
-    { id: 'bp', label: '年度 BP 管理', intent: '版本锁定与目标拆解' },
-    { id: 'roadmap', label: '新品/SPU Roadmap', intent: '上新节奏偏差' },
-    { id: 'import', label: '数据导入/编辑', intent: '模板导入与质量检查' },
-    { id: 'settings', label: '参数设置', intent: '阈值与归因规则' },
-    { id: 'methodology', label: '口径说明', intent: '财务与业务口径统一' },
+    { id: 'variance', label: 'BP 偏差归因', intent: '达成差异解释' },
     { id: 'product', label: '产品/品类利润', intent: '真实经营贡献' },
     { id: 'channel', label: '渠道盈亏', intent: '渠道是否真正赚钱' },
     { id: 'marketing', label: '营销敏感性', intent: '投入是否有效' },
+    // 规划与预测
+    { id: 'bp', label: '年度 BP 管理', intent: '版本锁定与目标拆解' },
+    { id: 'roadmap', label: '新品/SPU Roadmap', intent: '上新节奏偏差' },
     { id: 'cost', label: '成本敏感性', intent: '成本变化对利润影响' },
-    { id: 'variance', label: 'BP 偏差归因', intent: '达成差异解释' },
+    // 工具与配置
     { id: 'report', label: '经营会报告', intent: '汇报导出' },
+    { id: 'import', label: '数据导入/编辑', intent: '模板导入与质量检查' },
+    { id: 'settings', label: '参数设置', intent: '阈值与归因规则' },
+    { id: 'methodology', label: '口径说明', intent: '财务与业务口径统一' },
   ],
   periods: [
     {
